@@ -45,14 +45,14 @@ const ProductCard = ({ product }) => {
         <div className="flex gap-2">
           <Link
             to={`/shop/${product._id}`}
-            className="w-full text-center py-2 border border-[#800f44] text-[#800f44] rounded-full hover:bg-[#800f44] hover:text-white transition"
+            className="w-full text-center py-2 border border-black text-black rounded-full hover:bg-black hover:text-white transition"
           >
             View Details
           </Link>
 
           <button
             onClick={handleAddToCart}
-            className="w-full text-center py-2 bg-[#800f44] text-white rounded-full hover:bg-[#5f0933] transition"
+            className="w-full text-center py-2 bg-black text-white rounded-full hover:bg-black transition"
           >
             Add To Cart
           </button>

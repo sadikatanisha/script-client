@@ -7,7 +7,7 @@ import "slick-carousel/slick/slick-theme.css";
 const Banner = () => {
   const { data, isLoading, isError, error } = useGetBannerQuery();
   console.log(data);
-  // Default banner configuration
+
   const defaultBanner = {
     image:
       "https://via.placeholder.com/1920x500.png?text=Summer+Collection+2024",
@@ -15,7 +15,6 @@ const Banner = () => {
     subHeader: "Discover Our Exclusive Collection",
   };
 
-  // Slider settings
   const sliderSettings = {
     dots: true,
     infinite: true,
@@ -73,7 +72,7 @@ const BannerSlide = ({ banner }) => (
         {banner.header}
       </h1>
       <p className="text-lg mb-6">{banner.subHeader}</p>
-      <button className="font-semibold py-3 px-6 rounded-full shadow-md border-2 bg-[#800f2f] hover:bg-[#f4f3ee] text-white hover:text-gray-900 border-white hover:border-[#800f2f] transition-all">
+      <button className="font-semibold py-3 px-6 rounded-full shadow-md border-2 bg-black hover:bg-[#f4f3ee] text-white hover:text-gray-900 border-white hover:border-black transition-all">
         Shop Now
       </button>
     </div>

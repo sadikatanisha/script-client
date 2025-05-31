@@ -28,8 +28,8 @@ const Navbar = () => {
   const switchAuthMode = (mode) => setAuthMode(mode);
 
   const linkClasses = ({ isActive }) =>
-    `transition duration-300 hover:text-[#800f2f] ${
-      isActive ? "border-b-2 border-[#800f2f]" : ""
+    `transition duration-300 hover:text-black ${
+      isActive ? "border-b-2 border-black font-bold" : ""
     }`;
 
   const handleLogout = async () => {
@@ -65,7 +65,7 @@ const Navbar = () => {
       <div className="hidden lg:flex items-center justify-between">
         <div className="font-extrabold">
           <NavLink to="/">
-            <h1>SM CLOTHING</h1>
+            <h1>E-Commerce</h1>
           </NavLink>
         </div>
 
@@ -79,12 +79,8 @@ const Navbar = () => {
           <NavLink to="/categories" className={linkClasses}>
             Categories
           </NavLink>
-          <NavLink to="/customize" className={linkClasses}>
-            Customize
-          </NavLink>
         </div>
 
-        {/* Right: Icons + Profile Dropdown */}
         <div className="flex items-center gap-4">
           {profile ? (
             // Wrap avatar + dropdown in a ref for outside‐click detection
@@ -98,7 +94,7 @@ const Navbar = () => {
 
               {isProfileMenuOpen && (
                 <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg">
-                  <ul className="py-2">
+                  <ul className="py-2 px-2">
                     <li>
                       <Link
                         to="/user/profile"
@@ -132,7 +128,7 @@ const Navbar = () => {
                     <li>
                       <button
                         onClick={handleLogout}
-                        className="w-full text-left px-4 py-2 text-gray-700 hover:bg-red-200"
+                        className="w-full text-center text-white px-4 py-2 rounded-md bg-black hover:bg-gray-900 cursor-pointer"
                       >
                         Logout
                       </button>

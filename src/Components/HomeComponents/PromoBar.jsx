@@ -56,7 +56,7 @@ const PromoBar = () => {
           ${visible ? "translate-y-0" : "-translate-y-full h-40px"}
         `}
       >
-        <div className="bg-[#800f2f] text-white text-md tracking-wide">
+        <div className="bg-black text-white text-md tracking-wide">
           <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-2">
             {/* Left side: moving text */}
             <div className="overflow-hidden w-full md:w-1/2">
@@ -79,7 +79,7 @@ const PromoBar = () => {
                   </span>
                   <Link
                     to="/shop"
-                    className="underline hover:text-yellow-300 whitespace-nowrap"
+                    className="underline hover:text-blue-300 whitespace-nowrap"
                   >
                     Shop now
                   </Link>
@@ -99,7 +99,7 @@ const PromoBar = () => {
                   href="https://facebook.com/yourpage"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-yellow-300"
+                  className="hover:text-blue-300"
                 >
                   <FaFacebookF />
                 </a>
@@ -107,7 +107,7 @@ const PromoBar = () => {
                   href="https://twitter.com/yourhandle"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-yellow-300"
+                  className="hover:text-blue-300"
                 >
                   <FaTwitter />
                 </a>
@@ -115,7 +115,7 @@ const PromoBar = () => {
                   href="https://instagram.com/yourhandle"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-yellow-300"
+                  className="hover:text-blue-300"
                 >
                   <FaInstagram />
                 </a>

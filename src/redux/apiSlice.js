@@ -51,6 +51,24 @@ export const apiSlice = createApi({
         body: formData,
       }),
     }),
+    // PAYMENT
+    createPaymentIntent: builder.mutation({
+      query: (payload) => ({
+        url: "/payment/create-payment-intent",
+        method: "POST",
+        body: payload,
+      }),
+    }),
+
+    saveOrder: builder.mutation({
+      query: (order) => ({
+        url: "/payment/save-order",
+        method: "POST",
+        body: order,
+      }),
+      invalidatesTags: ["Orders"],
+    }),
+
     // ADMIN
     createProduct: builder.mutation({
       query: (formData) => ({
@@ -206,6 +224,9 @@ export const {
   useGetAllOrdersQuery,
   useGetOrderDetailsQuery,
   useUpdateOrderStatusMutation,
+  // payment
+  useCreatePaymentIntentMutation,
+  useSaveOrderMutation,
   // Users
   useGetAllUsersQuery,
   useUpdateUserRoleMutation,
