@@ -10,12 +10,20 @@ const HomeProducts = () => {
     error,
   } = useGetAdminProductsQuery();
   const [activeCategory, setActiveCategory] = useState("All");
+
   const categories = useMemo(() => {
     if (!products) return ["All"];
     const unique = new Set(products.map((p) => p.category));
     return ["All", ...Array.from(unique)];
   }, [products]);
 
+  const filteredProducts = useMemo(() => {
+    if (!products) return [];
+    if (activeCategory === "All") return products;
+    return products.filter((p) => p.category === activeCategory);
+  }, [products, activeCategory]);
+
+  // 3) Now handle loading / error
   if (isLoading) {
     return (
       <div className="px-10 py-10 flex justify-center items-center">
@@ -23,6 +31,7 @@ const HomeProducts = () => {
       </div>
     );
   }
+
   if (isError) {
     return (
       <div className="px-10 py-10 text-red-500">
@@ -30,11 +39,6 @@ const HomeProducts = () => {
       </div>
     );
   }
-
-  const filteredProducts =
-    activeCategory === "All"
-      ? products
-      : products.filter((product) => product.category === activeCategory);
 
   return (
     <div className="px-10 py-10">
@@ -60,11 +64,15 @@ const HomeProducts = () => {
       </div>
 
       {/* Products Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-16">
-        {filteredProducts.map((product) => (
-          <ProductCard key={product._id} product={product} />
-        ))}
-      </div>
+      {filteredProducts.length === 0 ? (
+        <p className="text-center text-gray-500">No products found.</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-16">
+          {filteredProducts.map((product) => (
+            <ProductCard key={product._id} product={product} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

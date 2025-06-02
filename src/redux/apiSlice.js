@@ -44,6 +44,10 @@ export const apiSlice = createApi({
       query: () => "/user/featured-products",
     }),
 
+    getOrderHistory: builder.query({
+      query: () => "/user/order-history",
+    }),
+
     createOrder: builder.mutation({
       query: (formData) => ({
         url: "/user/create-order",
@@ -67,6 +71,13 @@ export const apiSlice = createApi({
         body: order,
       }),
       invalidatesTags: ["Orders"],
+    }),
+    applyCoupon: builder.mutation({
+      query: (payload) => ({
+        url: "/payment/apply-coupon",
+        method: "POST",
+        body: payload,
+      }),
     }),
 
     // ADMIN
@@ -214,6 +225,8 @@ export const {
   useGetFeaturedProductsQuery,
   useCreateOrderMutation,
   useGetMydataQuery,
+  useGetOrderHistoryQuery,
+
   // ADMIN product
   useCreateProductMutation,
   useUpdateProductMutation,
@@ -227,6 +240,7 @@ export const {
   // payment
   useCreatePaymentIntentMutation,
   useSaveOrderMutation,
+  useApplyCouponMutation,
   // Users
   useGetAllUsersQuery,
   useUpdateUserRoleMutation,

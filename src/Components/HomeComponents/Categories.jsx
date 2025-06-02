@@ -1,35 +1,82 @@
-import React from "react";
-import { FaArrowRight } from "react-icons/fa";
+// src/Pages/Categories/Categories.jsx
+
+import React, { useMemo } from "react";
+import { useGetAdminProductsQuery } from "../../redux/apiSlice";
+import { useNavigate } from "react-router-dom";
 
 const Categories = () => {
-  const categories = [
-    {
-      name: "One Piece",
-      img: "https://images.pexels.com/photos/25184999/pexels-photo-25184999/free-photo-of-model-in-traditional-embroidered-salwar-kameez-dress-and-scarf.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load",
-    },
-    {
-      name: "Co - Ords",
-      img: "https://images.pexels.com/photos/25184956/pexels-photo-25184956/free-photo-of-model-in-traditional-green-dress-and-scarf.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load",
-    },
-  ];
+  const navigate = useNavigate();
+  const {
+    data: products = [],
+    isLoading,
+    isError,
+  } = useGetAdminProductsQuery();
+
+  const categories = useMemo(() => {
+    if (!products.length) return [];
+
+    const map = {};
+    for (const product of products) {
+      const cat = product.category || "Uncategorized";
+      if (!map[cat]) {
+        map[cat] = product.images?.[0]?.url || "";
+      }
+    }
+    return Object.entries(map).map(([name, imgUrl]) => ({
+      name,
+      img:
+        imgUrl ||
+        `https://via.placeholder.com/200?text=${encodeURIComponent(name)}`,
+    }));
+  }, [products]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <span className="text-gray-500">Loading categories...</span>
+      </div>
+    );
+  }
+  if (isError) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <span className="text-red-500">Failed to load categories.</span>
+      </div>
+    );
+  }
+
+  if (!categories.length) {
+    return (
+      <div className="text-center py-20">
+        <span className="text-gray-600">No categories found.</span>
+      </div>
+    );
+  }
 
   return (
     <div className="px-10 py-10">
       <h1 className="text-4xl font-bold mb-8 uppercase tracking-tight">
         Our Categories
       </h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {categories.map((category, index) => (
-          <div key={index} className="relative group">
-            <img
-              src={category.img}
-              alt={category.name}
-              className="w-full h-80 object-cover rounded-2xl shadow-lg"
-            />
-            <div className="absolute bottom-0 left-0 w-full bg-[#800f2f] bg-opacity-50 text-white p-4 flex items-center justify-between rounded-b-2xl">
-              <span className="text-lg font-semibold">{category.name}</span>
-              <FaArrowRight className="text-xl group-hover:translate-x-2 transition-transform duration-300" />
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8">
+        {categories.map((category) => (
+          <div
+            key={category.name}
+            className="flex flex-col items-center space-y-4 cursor-pointer"
+            onClick={() =>
+              navigate(`/shop?category=${encodeURIComponent(category.name)}`)
+            }
+          >
+            <div className="w-40 h-40 rounded-full overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-200">
+              <img
+                src={category.img}
+                alt={category.name}
+                className="w-full h-full object-cover"
+              />
             </div>
+            <span className="text-lg font-medium capitalize">
+              {category.name}
+            </span>
           </div>
         ))}
       </div>

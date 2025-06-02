@@ -1,60 +1,82 @@
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useContext, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
-import { IoLocationOutline, IoCardOutline } from "react-icons/io5";
+import { IoCardOutline } from "react-icons/io5";
 import PaymentForm from "../../Components/PaymentForm";
+import { AuthContext } from "../../provider/AuthProvider";
+import { clearCart } from "../../redux/cartSlice";
+import { useApplyCouponMutation } from "../../redux/apiSlice";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
-// Delivery rates in BDT (৳)
-const DELIVERY_RATES = {
-  Dhaka: 120,
-  Chattogram: 100,
-  Others: 150,
-};
-
 const Checkout = () => {
-  // Grab cart from Redux
+  const dispatch = useDispatch();
+  const { profile } = useContext(AuthContext);
+  const userId = profile?._id || null;
+
   const cartIds = useSelector((state) => state.cart.ids) || [];
   const cartEntities = useSelector((state) => state.cart.entities) || {};
-  const cartItems = cartIds.map((id) => cartEntities[id]);
+  const cartItems = cartIds.map((id) => cartEntities[id] || {});
 
-  // Sum up subtotal (main currency unit, e.g. BDT)
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+  // 1) Compute raw USD subtotal
+  const rawSubtotal = cartItems.reduce(
+    (sum, item) => sum + (item.price || 0) * (item.quantity || 0),
     0
   );
 
-  // Customer Info State for guest
+  // 2) Local state for shipping/info & coupon
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [contactNo, setContactNo] = useState("");
   const [address, setAddress] = useState("");
   const [apartmentNo, setApartmentNo] = useState("");
   const [city, setCity] = useState("");
+  const [couponCode, setCouponCode] = useState("");
 
-  // Delivery Location (default Dhaka)
-  const [location, setLocation] = useState("Dhaka");
+  // 3) Coupon-related state
+  const [applyCoupon] = useApplyCouponMutation();
+  const [couponError, setCouponError] = useState(null);
+  const [discount, setDiscount] = useState(0);
+  const [finalTotal, setFinalTotal] = useState(rawSubtotal);
 
-  // Calculate fees/totals
-  const deliveryFee = DELIVERY_RATES[location] || DELIVERY_RATES.Others;
-  const total = subtotal + deliveryFee;
-
-  const handleLocationChange = (e) => setLocation(e.target.value);
-
+  // 4) Payment success flag
   const [showSuccess, setShowSuccess] = useState(false);
 
+  // 5) Handler: Apply Coupon
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError("Please enter a coupon code.");
+      return;
+    }
+
+    try {
+      const { discount: d, finalTotal: ft } = await applyCoupon({
+        code: couponCode,
+        subtotal: rawSubtotal,
+        userId,
+      }).unwrap();
+      setDiscount(d);
+      setFinalTotal(ft);
+      setCouponError(null);
+    } catch (err) {
+      setCouponError(err.data?.message || "Failed to validate coupon.");
+      setDiscount(0);
+      setFinalTotal(rawSubtotal);
+    }
+  };
+
+  // 6) After payment is confirmed
   const handlePaymentSuccess = () => {
     setShowSuccess(true);
-    // You might also clear the cart via dispatch(clearCart()) here
+    dispatch(clearCart());
   };
 
   const handlePaymentError = (msg) => {
     alert("Payment failed: " + msg);
   };
 
-  // Pre-check that customer filled required fields
+  // 7) Validate shipping info before proceeding to payment
   const validateCustomerInfo = () => {
     if (!firstName || !lastName || !contactNo || !address || !city) {
       alert("Please fill out all required customer information.");
@@ -67,6 +89,7 @@ const Checkout = () => {
     return true;
   };
 
+  // 8) If payment succeeded, show thank-you screen
   if (showSuccess) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -80,7 +103,7 @@ const Checkout = () => {
 
   return (
     <div className="max-w-5xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
-      {/* ─────────────── Left Column: Customer Info & Summary ─────────────── */}
+      {/* ─────────── Left Column: Shipping & Coupon ─────────── */}
       <div className="bg-white shadow rounded-lg p-6 space-y-6">
         <h2 className="text-2xl font-semibold">Customer Information</h2>
 
@@ -122,7 +145,7 @@ const Checkout = () => {
             value={contactNo}
             onChange={(e) => setContactNo(e.target.value)}
             className="w-full border-gray-300 rounded p-2"
-            placeholder="01XXXXXXXXX"
+            placeholder="(555) 123-4567"
           />
         </div>
 
@@ -162,27 +185,29 @@ const Checkout = () => {
             value={city}
             onChange={(e) => setCity(e.target.value)}
             className="w-full border-gray-300 rounded p-2"
-            placeholder="Dhaka"
+            placeholder="New York"
           />
         </div>
 
-        {/* Delivery Location */}
-        <div>
-          <label className=" text-sm font-medium mb-1 flex items-center">
-            <IoLocationOutline className="mr-2 text-xl" />
-            Delivery Location
-          </label>
-          <select
-            className="w-full border-gray-300 rounded p-2"
-            value={location}
-            onChange={handleLocationChange}
-          >
-            {Object.keys(DELIVERY_RATES).map((loc) => (
-              <option key={loc} value={loc}>
-                {loc} (৳ {DELIVERY_RATES[loc]})
-              </option>
-            ))}
-          </select>
+        {/* Coupon Code */}
+        <div className="space-y-1">
+          <label className="block text-sm font-medium mb-1">Coupon Code</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={couponCode}
+              onChange={(e) => setCouponCode(e.target.value)}
+              className="flex-1 border-gray-300 rounded p-2"
+              placeholder="Enter coupon code"
+            />
+            <button
+              onClick={handleApplyCoupon}
+              className="bg-green-600 text-white px-4 rounded hover:bg-green-700"
+            >
+              Apply
+            </button>
+          </div>
+          {couponError && <p className="text-red-500 text-sm">{couponError}</p>}
         </div>
 
         {/* Order Summary */}
@@ -193,28 +218,28 @@ const Checkout = () => {
               <span>
                 {item.name} x {item.quantity}
               </span>
-              <span>৳ {(item.price * item.quantity).toFixed(2)}</span>
+              <span>${(item.price * item.quantity).toFixed(2)}</span>
             </div>
           ))}
-          <div className="flex justify-between">
-            <span>Subtotal</span>
-            <span>$ {subtotal.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Delivery Fee</span>
-            <span>$ {deliveryFee.toFixed(2)}</span>
-          </div>
+
+          {/* Show discount if applied */}
+          {discount > 0 && (
+            <div className="flex justify-between text-green-700">
+              <span>Discount</span>
+              <span>-${discount.toFixed(2)}</span>
+            </div>
+          )}
+
           <div className="flex justify-between text-lg font-semibold">
             <span>Total</span>
-            <span>$ {total.toFixed(2)}</span>
+            <span>${finalTotal.toFixed(2)}</span>
           </div>
         </div>
 
-        {/* Validation before PaymentForm */}
+        {/* Proceed to Payment */}
         <button
           onClick={() => {
             if (!validateCustomerInfo()) return;
-            // If valid, scroll to PaymentForm or highlight it
             document
               .getElementById("payment-section")
               ?.scrollIntoView({ behavior: "smooth" });
@@ -225,7 +250,7 @@ const Checkout = () => {
         </button>
       </div>
 
-      {/* ─────────────── Right Column: Stripe Card Payment ─────────────── */}
+      {/* ─────── Right Column: Stripe Card Payment ─────── */}
       <div className="bg-white shadow rounded-lg p-6" id="payment-section">
         <h2 className="text-2xl font-semibold mb-4 flex items-center">
           <IoCardOutline className="mr-2 text-xl" />
@@ -234,6 +259,7 @@ const Checkout = () => {
 
         <Elements stripe={stripePromise}>
           <PaymentForm
+            userId={userId}
             cartItems={cartItems}
             currency={"usd"}
             rates={{ usd: 1 }}
@@ -243,6 +269,7 @@ const Checkout = () => {
             address={address}
             apartmentNo={apartmentNo}
             city={city}
+            couponCode={couponCode}
             onSuccess={handlePaymentSuccess}
             onError={handlePaymentError}
           />

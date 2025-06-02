@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"; // ← import useNavigate
 import { useGetProductDetailsQuery } from "../../redux/apiSlice";
 import { addToCart } from "../../redux/cartSlice";
+import FeaturedProducts from "../../Components/HomeComponents/FeaturedProducts";
 
 const ProductDetails = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate(); // ← initialize navigate
   const { id } = useParams();
   const { data: product, isLoading, error } = useGetProductDetailsQuery(id);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -32,18 +34,30 @@ const ProductDetails = () => {
   if (!product)
     return <div className="text-center py-8">Product not found</div>;
 
+  // Helper: builds the payload object consistently
+  const buildCartPayload = (product) => ({
+    _id: product._id,
+    name: product.name,
+    image: product.images[0]?.url,
+    price: product.discountPrice ?? product.price,
+    quantity: 1,
+    color: selectedColor,
+    size: selectedSize,
+  });
+
   const handleAddToCart = (product) => {
-    const payload = {
-      _id: product._id,
-      name: product.name,
-      image: product.images[0]?.url,
-      price: product.discountPrice ?? product.price,
-      quantity: 1,
-      // you could also include selectedColor / selectedSize in payload if needed
-      // color: selectedColor,
-      // size: selectedSize,
-    };
+    const payload = buildCartPayload(product);
     dispatch(addToCart(payload));
+    // No redirect here—just adds to cart
+  };
+
+  // ← NEW: “Buy Now” handler
+  const handleBuyNow = (product) => {
+    const payload = buildCartPayload(product);
+    dispatch(addToCart(payload));
+
+    // After adding, immediately send them to /cart (or /checkout)
+    navigate("/cart");
   };
 
   return (
@@ -90,7 +104,7 @@ const ProductDetails = () => {
                 <span className="text-2xl font-bold">
                   {product.discountPrice ? (
                     <>
-                      <span className="text-red-600">
+                      <span className="text-black font-bold">
                         ${product.discountPrice}
                       </span>
                       <span className="ml-2 text-gray-400 line-through">
@@ -161,7 +175,7 @@ const ProductDetails = () => {
                     onClick={() => setSelectedSize(size)}
                     className={`px-4 py-2 rounded-md ${
                       selectedSize === size
-                        ? "bg-[#800f2f] text-white"
+                        ? "bg-black text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
                   >
@@ -172,49 +186,20 @@ const ProductDetails = () => {
             </div>
           )}
 
-          {/* Customization Options */}
-          {product.isCustomizable &&
-            product.customizationOptions?.map((option, index) => (
-              <div key={index} className="space-y-2">
-                <label className="font-medium">{option.optionName}</label>
-                {option.optionType === "text" && (
-                  <input
-                    type="text"
-                    className="w-full p-2 border rounded-md"
-                    required={option.required}
-                  />
-                )}
-                {option.optionType === "number" && (
-                  <input
-                    type="number"
-                    className="w-full p-2 border rounded-md"
-                    required={option.required}
-                  />
-                )}
-                {option.optionType === "color" && (
-                  <input
-                    type="color"
-                    className="w-16 h-10"
-                    required={option.required}
-                  />
-                )}
-                {option.optionType === "image" && (
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="w-full"
-                    required={option.required}
-                  />
-                )}
-              </div>
-            ))}
-
           <div className="flex gap-4">
             <button
               onClick={() => handleAddToCart(product)}
-              className="mt-3 w-full bg-[#800f2f] text-white py-2 rounded hover:bg-gray-800 transition"
+              className="mt-3 w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition"
             >
               Add to Cart
+            </button>
+          </div>
+          <div className="flex gap-4">
+            <button
+              onClick={() => handleBuyNow(product)} // ← use the new handler
+              className=" w-full bg-white border text-black py-2 rounded hover:bg-black hover:text-white transition"
+            >
+              Buy Now
             </button>
           </div>
 
@@ -227,15 +212,10 @@ const ProductDetails = () => {
                 </span>
               ))}
             </div>
-            <div className="mt-4 text-sm text-gray-500">
-              <p>
-                Rating: {product.rating}/5 ({product.numReviews} reviews)
-              </p>
-              <p>Sales: {product.sales || 0} sold</p>
-            </div>
           </div>
         </div>
       </div>
+      <FeaturedProducts />
     </div>
   );
 };

@@ -75,7 +75,7 @@ const Profile = () => {
           </div>
           <button
             onClick={logOut}
-            className="mt-6 w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition"
+            className="mt-6 w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition"
           >
             Log Out
           </button>
@@ -101,7 +101,7 @@ const Profile = () => {
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 required
-                className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
 
@@ -112,7 +112,7 @@ const Profile = () => {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
-                className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
 
@@ -130,7 +130,7 @@ const Profile = () => {
             <button
               type="submit"
               disabled={isChanging}
-              className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition disabled:opacity-50"
+              className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-400 transition disabled:opacity-50"
             >
               {isChanging ? "Updating..." : "Update Password"}
             </button>
