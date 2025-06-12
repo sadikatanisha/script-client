@@ -2,8 +2,9 @@
 import React, { useContext, useState } from "react";
 import { AuthContext } from "../../provider/AuthProvider";
 import { useGetMydataQuery } from "../../redux/apiSlice";
-
+import { useNavigate } from "react-router-dom";
 const Profile = () => {
+  const navigate = useNavigate();
   const { profile, logOut, updatePassword } = useContext(AuthContext);
   const { data: userData, isLoading, isError, error } = useGetMydataQuery();
 
@@ -41,6 +42,10 @@ const Profile = () => {
     }
   };
 
+  const handleLogout = async () => {
+    await logOut();
+    navigate("/");
+  };
   if (isLoading) {
     return <p className="text-center py-8">Loading profile…</p>;
   }
@@ -53,6 +58,7 @@ const Profile = () => {
   }
 
   const user = userData?.data || {};
+  console.log("user", profile);
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
@@ -65,16 +71,16 @@ const Profile = () => {
           <div className="space-y-3">
             <div>
               <p className="text-sm text-gray-500">Name</p>
-              <p className="text-lg">{user.name || profile?.name}</p>
+              <p className="text-lg">{profile?.name}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Email</p>
-              <p className="text-lg">{user.email || profile?.email}</p>
+              <p className="text-lg">{profile?.email}</p>
             </div>
-            {/* Add other fields if available, e.g. phone, address */}
           </div>
           <button
-            onClick={logOut}
+            onClick={handleLogout}
+            type="button"
             className="mt-6 w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition"
           >
             Log Out
@@ -130,7 +136,7 @@ const Profile = () => {
             <button
               type="submit"
               disabled={isChanging}
-              className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-400 transition disabled:opacity-50"
+              className="w-full bg-gray-100 border text-black py-2 rounded-lg hover:bg-black hover:text-white transition disabled:opacity-50"
             >
               {isChanging ? "Updating..." : "Update Password"}
             </button>

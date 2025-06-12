@@ -1,5 +1,3 @@
-// src/Pages/Categories/Categories.jsx
-
 import React, { useMemo } from "react";
 import { useGetAdminProductsQuery } from "../../redux/apiSlice";
 import { useNavigate } from "react-router-dom";

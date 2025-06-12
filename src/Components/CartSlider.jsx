@@ -9,7 +9,6 @@ const CartSlider = ({ isOpen, onClose }) => {
   const cartItems = useSelector((state) => state.cart);
 
   const handleDecrease = (id, currentQty) => {
-    // Decrease quantity or remove if only one remains
     if (currentQty > 1) {
       dispatch(updateQuantity({ id, quantity: currentQty - 1 }));
     } else {
@@ -32,7 +31,7 @@ const CartSlider = ({ isOpen, onClose }) => {
       }`}
     >
       {/* Header */}
-      <div className="flex justify-between items-center px-4 py-8 border-b border-gray-100">
+      <div className="flex justify-between items-center px-4 pb-5 pt-16 border-b border-gray-100">
         <h2 className="text-2xl font-medium uppercase">Your Cart</h2>
         <button onClick={onClose}>
           <IoClose className="text-2xl" />

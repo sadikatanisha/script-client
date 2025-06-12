@@ -53,7 +53,7 @@ const Sidebar = ({ userRole, mobileOpen, handleDrawerToggle }) => {
 
   return (
     <div
-      className={`fixed h-full bg-gray-800 text-white transition-all duration-300 ${
+      className={`fixed h-full bg-gray-900 text-white transition-all duration-300 ${
         isExpanded ? "w-60" : "w-16"
       }`}
     >
@@ -71,7 +71,7 @@ const Sidebar = ({ userRole, mobileOpen, handleDrawerToggle }) => {
               key={index}
               to={`${item.path}`}
               className={`flex items-center gap-3 px-4 py-3 my-1 mx-2 rounded-lg transition duration-200 ${
-                isActive ? "bg-orange-500 text-white" : "hover:bg-gray-700"
+                isActive ? "bg-blue-500 text-white" : "hover:bg-gray-700"
               }`}
               onClick={handleDrawerToggle}
             >

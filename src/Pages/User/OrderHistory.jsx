@@ -3,7 +3,7 @@ import { useGetOrderHistoryQuery } from "../../redux/apiSlice";
 
 const OrderHistory = () => {
   const { data, isLoading, isError, error } = useGetOrderHistoryQuery();
-  console.log(data);
+  console.log("order history", data);
 
   if (isLoading) {
     return (

@@ -51,7 +51,6 @@ export function AuthProvider({ children }) {
         }
         setToken(tok);
 
-        // Fetch user profile
         if (tok) {
           try {
             const profileUrl = `${import.meta.env.VITE_SERVER_URL}/api/auth/me`;
@@ -154,9 +153,9 @@ export function AuthProvider({ children }) {
       {loading && (
         <div className="flex space-x-2 justify-center items-center bg-white h-screen dark:invert">
           <span className="sr-only">Loading...</span>
-          <div className="h-8 w-8 bg-orange-600 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-          <div className="h-8 w-8 bg-orange-600 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-          <div className="h-8 w-8 bg-orange-600 rounded-full animate-bounce"></div>
+          <div className="h-8 w-8 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+          <div className="h-8 w-8 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+          <div className="h-8 w-8 bg-black rounded-full animate-bounce"></div>
         </div>
       )}
     </AuthContext.Provider>

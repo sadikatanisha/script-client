@@ -16,7 +16,6 @@ const PaymentForm = ({
   userId,
   cartItems,
   currency,
-  rates,
   firstName,
   lastName,
   contactNo,
@@ -34,12 +33,7 @@ const PaymentForm = ({
   const [saveOrder] = useSaveOrderMutation();
   const [isProcessing, setIsProcessing] = useState(false);
   const [cardError, setCardError] = useState("");
-
-  // Calculate raw USD subtotal for display; backend will re‐validate coupon
-  const totalAmount = cartItems.reduce((sum, item) => {
-    const price = parseFloat(item.discountPrice || item.price) || 0;
-    return sum + price * (item.quantity || 0) * rates[currency];
-  }, 0);
+  const [amountInCents, setAmountInCents] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,16 +43,22 @@ const PaymentForm = ({
     setCardError("");
 
     try {
-      const { clientSecret, paymentIntentId } = await createIntent({
+      const {
+        clientSecret,
+        paymentIntentId,
+        amountInCents: cents,
+      } = await createIntent({
         items: cartItems.map((item) => ({
-          price: parseFloat(item.discountPrice || item.price) * rates[currency],
-          quantity: item.quantity,
           productId: item._id,
+          quantity: item.quantity,
+          price: item.price,
         })),
         currency: currency.toLowerCase(),
-        userId: userId,
+        userId,
         couponCode: couponCode || null,
       }).unwrap();
+
+      setAmountInCents(cents);
 
       const cardElement = elements.getElement(CardNumberElement);
       if (!cardElement) throw new Error("Card element not found");
@@ -92,9 +92,9 @@ const PaymentForm = ({
         items: cartItems.map((item) => ({
           productId: item._id,
           quantity: item.quantity,
-          price: parseFloat(item.discountPrice || item.price) * rates[currency],
+          price: item.price,
         })),
-        totalAmount,
+        totalAmount: cents / 100,
         paymentIntentId,
       }).unwrap();
 
@@ -140,20 +140,27 @@ const PaymentForm = ({
           />
         </div>
       </div>
+
       {cardError && <p className="text-red-500 text-xs">{cardError}</p>}
+
       <button
         type="submit"
         disabled={!stripe || isProcessing}
-        className={`w-full py-3 rounded text-white ${
-          isProcessing
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-black hover:bg-white hover:text-black border"
-        } flex items-center justify-center gap-2`}
+        className={`
+          w-full py-3 rounded text-white flex items-center justify-center gap-2
+          ${
+            isProcessing
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-black hover:bg-white hover:text-black border"
+          }
+        `}
       >
         <FiCreditCard />
         {isProcessing
           ? "Processing..."
-          : `Pay ${currency.toUpperCase()} ${totalAmount.toFixed(2)}`}
+          : `Pay ${currency.toUpperCase()} $${
+              amountInCents != null ? (amountInCents / 100).toFixed(2) : "..."
+            }`}
       </button>
     </form>
   );

@@ -1,5 +1,4 @@
-// src/components/PromoBar.jsx
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
 import { useGetActiveCouponQuery } from "../../redux/apiSlice";
 import { Link } from "react-router-dom";
 import {
@@ -13,26 +12,6 @@ const PromoBar = () => {
   const { data: coupons = [], isLoading, isError } = useGetActiveCouponQuery();
   const activeCoupon =
     Array.isArray(coupons) && coupons.length > 0 ? coupons[0] : null;
-
-  const [visible, setVisible] = useState(true);
-  const prevScrollY = useRef(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-
-      if (currentScrollY > prevScrollY.current && currentScrollY > 50) {
-        setVisible(false);
-      } else {
-        setVisible(true);
-      }
-
-      prevScrollY.current = currentScrollY;
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   return (
     <>
@@ -50,15 +29,9 @@ const PromoBar = () => {
         `}
       </style>
 
-      <div
-        className={`
-          fixed top-0 left-0 w-full z-50 transform transition-transform duration-500
-          ${visible ? "translate-y-0" : "-translate-y-full h-40px"}
-        `}
-      >
-        <div className="bg-black text-white text-md tracking-wide">
-          <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-2">
-            {/* Left side: moving text */}
+      <div className="fixed top-0 left-0 w-full h-10 z-50">
+        <div className="h-full bg-black text-white text-sm tracking-wide">
+          <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-2 h-full">
             <div className="overflow-hidden w-full md:w-1/2">
               {isLoading ? (
                 <span className="marquee">Loading promo…</span>
@@ -92,7 +65,7 @@ const PromoBar = () => {
               )}
             </div>
 
-            {!activeCoupon && !isLoading && !isError && (
+            {!isLoading && !isError && (
               <div className="hidden md:flex items-center space-x-4">
                 <span>Follow us:</span>
                 <a

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { useParams, useNavigate } from "react-router-dom"; // ← import useNavigate
+import { useParams, useNavigate } from "react-router-dom";
 import { useGetProductDetailsQuery } from "../../redux/apiSlice";
 import { addToCart } from "../../redux/cartSlice";
 import FeaturedProducts from "../../Components/HomeComponents/FeaturedProducts";
 
 const ProductDetails = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // ← initialize navigate
+  const navigate = useNavigate();
   const { id } = useParams();
   const { data: product, isLoading, error } = useGetProductDetailsQuery(id);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -34,7 +34,6 @@ const ProductDetails = () => {
   if (!product)
     return <div className="text-center py-8">Product not found</div>;
 
-  // Helper: builds the payload object consistently
   const buildCartPayload = (product) => ({
     _id: product._id,
     name: product.name,
@@ -48,15 +47,12 @@ const ProductDetails = () => {
   const handleAddToCart = (product) => {
     const payload = buildCartPayload(product);
     dispatch(addToCart(payload));
-    // No redirect here—just adds to cart
   };
 
-  // ← NEW: “Buy Now” handler
   const handleBuyNow = (product) => {
     const payload = buildCartPayload(product);
     dispatch(addToCart(payload));
 
-    // After adding, immediately send them to /cart (or /checkout)
     navigate("/cart");
   };
 
@@ -196,7 +192,7 @@ const ProductDetails = () => {
           </div>
           <div className="flex gap-4">
             <button
-              onClick={() => handleBuyNow(product)} // ← use the new handler
+              onClick={() => handleBuyNow(product)}
               className=" w-full bg-white border text-black py-2 rounded hover:bg-black hover:text-white transition"
             >
               Buy Now
